@@ -59,6 +59,9 @@ sub new {
   my $this = {};
   bless ($this, $class);
 
+
+  $this->{pkgList} = ();  #hash to contain the packages.
+
   return $this;
 }
 
@@ -82,23 +85,43 @@ sub DESTROY {
 }
 
 
-=head2 get_koch_pointer
+=head2 dependHandlere
 
   declartion:  dependHandler
-       input:  $line  line contanins comand and action
+       input:  $pkg_data  line containing the package and the dependences
       return:  
-    function:  
+    function:  if the package is not in the list create a package object
+               and add it to the list, then add any dependencies. if the
+               package is in the list add the dependences.
+
+$this->{pkgList} = ();  #hash to contain the packages.
 
 =cut back to perl
 
 #_____________________________________________________________________________
 
 sub dependHandler{
-  my $this = shift;
-  my $line = shift;
+    my $this = shift;
+    my @pkg_data = @_;
 
-  return ;
-}#end dependHandler
+    my $pakcage_name = shift(@pkg_data);  #this will leave just the dependencies
+
+    if (exists $this->{pkgList}->{$pakcage_name}){
+
+    }else{
+	my $stop;
+	my $pkg_ref  = Package->new($pakcage_name);
+	$this->{pkgLIst}->{$pakcage_name} = $pkg_ref;
+
+	#$pkg->get_test();
+
+	my $stop2;
+    }
+
+    
+    #@keys = keys 
+    return ;
+} #end dependHandler
 
 
 
