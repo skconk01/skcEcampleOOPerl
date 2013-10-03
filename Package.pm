@@ -30,6 +30,10 @@ $Revision: 1.1.1.1 $
 use strict;
 package Package;
 
+use constant false => 0;
+use constant true  => 1;
+
+
 #_____________________________________________________________________________
 
 =head2 new
@@ -55,15 +59,159 @@ sub new {
   my $this = {};
   bless ($this, $class);
 
-  $this->name = shift;
-  $this->installedWith = [];
-  $this->depends = [];
-  $this->installed = 'no';
-  $this->using = [];
-  $this->needed = [];
+  $this->{name} = shift;
+  $this->{installedWith} = [];
+  $this->{depends} = [];
+  $this->{installed} = 'no';
+  $this->{using} = [];
+  $this->{needed} = [];
+
 
   return $this;
 }
 
+
+#_____________________________________________________________________________
+
+=head2 get_name
+
+  declartion:   get_name
+       input:
+      return:  $name   name of the data container
+    function:
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub get_name {
+
+  my $this = shift;
+  my $name = $this->{name};
+
+  return $name;
+}
+
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
+=head2 add_dependencies
+
+  declartion:   add_dependencies
+       input:  @dep
+      return:
+    function:  add the values in @dep to 
+               $this->{depends}  array
+$this->{depends}
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub add_dependencies {
+
+  my $this = shift;
+  my @dep = @_;
+
+  $this->{depends} = \@dep;  #add dep array to the reference $this->{depends}
+
+  my $stop;
+  return 0;
+}
+
+#_____________________________________________________________________________
+
+=head2 print_dependencies
+
+  declartion:   print_dependencies
+       input:
+      return:
+    function:  print the dependencies for this package
+
+$this->{depends}
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub print_dependencies {
+
+  my $this = shift;
+
+  my $dep_ref = $this->{depends};
+
+  foreach my $dep ( @$dep_ref) {
+    print "---> $dep\n";
+
+  }
+
+  return 0;
+}
+
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
+=head2 set_install
+
+  declartion:   set_install
+       input:
+      return:
+    function:  set the intall flag to yes
+
+
+$this->{installed} = 'yes';
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub set_install {
+
+  my $this = shift;
+
+  $this->{installed} = 'yes';
+
+  return 0;
+}
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
+=head2 ck_if_installed
+
+  declartion:   ck_if_installed
+       input:
+      return:   rc   false not installed true if installed
+    function:  check to see if the $this->{installed} is yes
+
+
+$this->{installed} = 'yes';
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub ck_if_installed {
+
+  my $this = shift;
+  my $rc = 'NULL';
+
+
+  if ($this->{installed} eq 'yes') {
+    $rc = true;
+  }
+
+
+
+  return $rc;
+}
+#_____________________________________________________________________________
+
+#_____________________________________________________________________________
 
 1;    # end of Pacage.pm
