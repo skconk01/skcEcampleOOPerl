@@ -97,6 +97,30 @@ sub get_name {
 
 #_____________________________________________________________________________
 
+=head2 get_dependencies
+
+  declartion:   get_dependencies
+       input:
+      return:  $dep_ref  reference to the dependency array
+    function:
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub get_dependencies {
+
+  my $this = shift;
+  my $dep_ref = $this->{depends};
+
+  return $dep_ref;
+}
+
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
 =head2 add_dependencies
 
   declartion:   add_dependencies
@@ -204,6 +228,8 @@ sub ck_if_installed {
 
   if ($this->{installed} eq 'yes') {
     $rc = true;
+  }else {
+    $rc = false;
   }
 
 

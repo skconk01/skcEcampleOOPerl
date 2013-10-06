@@ -99,7 +99,9 @@ sub DESTROY {
                package is in the list add the dependences.
 
 $this->{pkgList} = ();  #hash to contain the packages.
-exists $hash{$key} 
+exists $hash{$key}
+
+print keys % { $this->{pkgList} }
 
 =cut back to perl
 
@@ -159,18 +161,27 @@ sub listHandler {
       my $name = $pkg->get_name();
       print "$name\n";
     }
+  }elsif ($listType eq 'installed' ) {
+    foreach my $pakcage_name (keys  % { $this->{pkgList} }  ) {
+      my $pkg = $this->{pkgList}{$pakcage_name}; #get the reference to the
+      if ($pkg->ck_if_installed()) {
+	my $name = $pkg->get_name();
+	 print "$name\n";
+      }
+    }
+
+  }elsif ($listType eq 'depends') {
+    foreach my $pakcage_name (keys  % { $this->{pkgList} } ) {
+      my $pkg = $this->{pkgList}{$pakcage_name}; #get the reference to the
+      #objecte with package data
+      my $name = $pkg->get_name();
+      print "$name\n";
+      $pkg->print_dependencies();
+    }
 
 
-  }
-
-
-  foreach my $pakcage_name (keys  % { $this->{pkgList} } ) {
-   my $pkg = $this->{pkgList}{$pakcage_name}; #get the reference to the
-                                              #objecte with package data
-   my $name = $pkg->get_name();
-   print "$name\n";
-   $pkg->print_dependencies();
-
+  }else {
+    print " all installed depends \n";
   }
 
   return;
@@ -196,8 +207,10 @@ sub installHandler {
   my $pkg  = shift;
 
   #check to see if the package is installed
-  # if ($this->isPkgInstalled(packageName)) {
-  # }
+  if ($this->isPkgInstalled($pkg)) {
+    print "The package --> $pkg <--  is already installed\n";
+    return 1;  #package installed
+  }
 
   $this->resolveDependency($pkg);
 
@@ -207,6 +220,36 @@ sub installHandler {
 }
 #_____________________________________________________________________________
 
+#_____________________________________________________________________________
+
+=head2 removeHandler
+
+  declartion:   removeHandler
+       input:   pkg   the package to be removes
+      return:   none
+    function:  
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub removeHandler {
+  my $this = shift;
+  my $pkg  = shift;
+
+  #check to see if the package is installed
+  if ($this->isPkgInstalled($pkg)) {
+    print "The package --> $pkg <--  is already installed\n";
+    return 1;  #package installed
+  }
+
+  $this->resolveDependency($pkg);
+
+  $this->installPkg($pkg);
+
+  return 0;
+}
+#_____________________________________________________________________________
 
 #_____________________________________________________________________________
 
@@ -223,10 +266,29 @@ sub installHandler {
 
 sub resolveDependency {
   my $this = shift;
-  my $pkg = shift;
+  my $pakcage_name = shift;
 
 
-  if ($this->dependCheck($pkg)) {
+  if ($this->dependCheck($pakcage_name)) {
+
+    my $pkg = $this->{pkgList}{$pakcage_name};
+    my $dep_ref = $pkg->get_dependencies();
+    my @dep_array = @$dep_ref;
+    foreach my $dep_name (@dep_array) {
+      print $dep_name;
+      #my $pkg = $this->{pkgList}{$dep_name};
+      if (!$this->isPkgInstalled($dep_name)) { #go here if not installed
+	$this->resolveDependency($dep_name);
+	print "need to install dependency $dep_name\n";
+	if (! $this->isPkgInstalled($dep_name)) {
+	  print "installing dependent package $dep_name\n";
+	  $this->installPkg($dep_name);
+	}
+
+	my $stop;
+      }
+    }
+
     my $stop = 'has dependneces';
   }else {
     my $stop = 'no dependneces';
@@ -277,7 +339,7 @@ sub dependCheck {
 =head2 installPkg
 
   declartion:   installPkg
-       input:   pkg  package to be installed
+       input:   $pakcage_name  package to be installed
       return:   
     function:   install the package in the var pkg.
                 check to see if the package is in the
@@ -293,14 +355,18 @@ sub dependCheck {
 
 sub installPkg {
   my $this = shift;
-  my $pkg = shift;
+  my $pakcage_name = shift;
 
-  if ( exists $this->{pkgList}{$pkg}) {
-
-  }else {
-    my $pkg = Package->new($pkg);
-    $this->{pkgList}{$pkg} = $pkg;
+  if ( exists $this->{pkgList}{$pakcage_name}) {
+    my $stop;
+    my $pkg = $this->{pkgList}{$pakcage_name};
     $pkg->set_install();
+  }else {
+    my $pkg = Package->new($pakcage_name);
+    $this->{pkgList}{$pakcage_name} = $pkg;
+    $pkg->set_install();
+    my $name = $pkg->get_name();
+    print "successfully installed package -->  $name\n";
   }
 
   return 0;
@@ -336,6 +402,42 @@ sub packagesInstalled {
    } else {
      $rc = false;
    }
+
+
+  return $rc;
+}
+#_____________________________________________________________________________
+
+
+
+#_____________________________________________________________________________
+
+=head2 isPkgInstalled
+
+  declartion:   isPkgInstalled
+       input:  $package_name   name of package looking for
+      return:  $rc   true if installed
+                     false if not installed
+    function:  check to see if the pack is installed.
+              first check to see if the package is in the list
+              $this->{pkgList}
+              if it is check to see if it is installed
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub isPkgInstalled {
+  my $this = shift;
+  my $pakcage_name = shift;
+  my $rc = false;
+
+  if (exists $this->{pkgList}{$pakcage_name}) {
+    my $pkg = $this->{pkgList}{$pakcage_name};
+    if ($pkg->ck_if_installed) {
+      $rc = true;
+    }
+  }
 
 
   return $rc;
