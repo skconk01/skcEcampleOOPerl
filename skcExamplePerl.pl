@@ -50,7 +50,6 @@ while (1) {
 
     if ($cmd eq 'DEPEND' ) {
 	print "call depend \n";
-	#todo fixe this to have the wole line
 	shift(@cmd_line);
 	my $depends = $cmd_line[1];
 	$pkgmg->dependHandler(@cmd_line);
@@ -61,6 +60,7 @@ while (1) {
 
     } elsif ($cmd eq 'REMOVE') {
 	print 'call remove'. "\n";
+	$pkgmg->removeHandler($cmd_line[1]);
     } elsif ($cmd eq 'LIST') {
 	print 'call list'. "\n";
 	$pkgmg->listHandler($cmd_line[1]);

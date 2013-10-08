@@ -225,9 +225,21 @@ sub installHandler {
 =head2 removeHandler
 
   declartion:   removeHandler
-       input:   pkg   the package to be removes
-      return:   none
+       input:   $pakcage_name    the package to be removes
+      return:   
     function:  
+Dependent packages must be removed manually before the package can be removed.
+        REMOVE item1 
+        Removes item1 and, if possible, packages required by item1.
+        conflicting requremets do the simple case first
+        
+        verify the package is installed.
+        
+        check to see who is using the package. 
+           not being used delete
+           being used check the using package and to  see if it is bing used
+           if it is not being used then delete it.
+           if a using package is being used by other packages then revert to manual deletion 
 
 =cut back to perl
 
@@ -235,17 +247,25 @@ sub installHandler {
 
 sub removeHandler {
   my $this = shift;
-  my $pkg  = shift;
+  my $pakcage_name  = shift;
 
   #check to see if the package is installed
-  if ($this->isPkgInstalled($pkg)) {
-    print "The package --> $pkg <--  is already installed\n";
-    return 1;  #package installed
-  }
+  if ($this->isPkgInstalled($pakcage_name)) {
+    my $pkg = $this->{pkgList}{$pakcage_name};
+    my $using_list_ref = $pkg->get_using_list();
+    my $size = @$using_list_ref;
+    if ($size > 0) {
+      my $lst = join(', ', @{$using_list_ref});
+      print "$pakcage_name is being used by --> $lst\n";
+    }else {
+      $this->removePackage($pakcage_name);
+    }
+    my $stop;
+  }else {
+      print "trying to remove a package --> $pakcage_name <-- that is not installed\n";
+    }
 
-  $this->resolveDependency($pkg);
 
-  $this->installPkg($pkg);
 
   return 0;
 }
@@ -361,6 +381,9 @@ sub installPkg {
     my $stop;
     my $pkg = $this->{pkgList}{$pakcage_name};
     $pkg->set_install();
+    $this->pkgUsingList($pakcage_name);
+    my $name = $pkg->get_name();
+    print "successfully installed package -->  $name\n";
   }else {
     my $pkg = Package->new($pakcage_name);
     $this->{pkgList}{$pakcage_name} = $pkg;
@@ -444,6 +467,78 @@ sub isPkgInstalled {
 }
 #_____________________________________________________________________________
 
+
+#_____________________________________________________________________________
+
+=head2 pkgUsingList
+
+  declartion:   pkgUsingList
+       input:  $package_name
+      return:  
+    function:  check to see if package has dependencies if it does then 
+              tell each dependency that this package is dependent on it and using it
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub pkgUsingList {
+  my $this = shift;
+  my $pakcage_name = shift;
+ 
+  #check to see if this package has dependencies
+  if ($this->dependCheck($pakcage_name)) {
+    my $stop;
+    my $pkg = $this->{pkgList}{$pakcage_name};
+    my $deps_array_ref = $pkg->get_dependencies();
+    my @dep_array = @$deps_array_ref;
+    foreach my $dep_name (@dep_array) {
+      my $pkg = $this->{pkgList}{$dep_name};
+      $pkg->add_to_using_list($pakcage_name);
+    }
+  }
+
+  return 0;
+}
+#_____________________________________________________________________________
+
+#_____________________________________________________________________________
+
+=head2 removePackage
+
+  declartion:   removePackage
+       input:  $package_name
+      return:  
+    function:  remove the package from the system
+you only get here if the package is ready to remove so set installed ot no
+        
+for each of the depends remove packageName from thier using list
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub removePackage {
+  my $this = shift;
+  my $pakcage_name = shift;
+
+  my $pkg = $this->{pkgList}{$pakcage_name};
+  my $deps_array_ref = $pkg->get_dependencies();
+  my @deps_array = @$deps_array_ref;
+
+  foreach my  $dep (@deps_array ) {
+    my $pkg = $this->{pkgList}{$dep};
+    my $using_list_ref = $pkg->get_using_list();
+
+    my @a = grep  {$_ ne $dep} @{ $using_list_ref };
+    my $stop;
+  }
+
+# @array = grep {$_ ne $input_Color} @array;
+
+  return 0;
+}
+#_____________________________________________________________________________
 
 #_____________________________________________________________________________
 1;    # end of PkgMgr.pm

@@ -238,6 +238,60 @@ sub ck_if_installed {
 }
 #_____________________________________________________________________________
 
+
+#_____________________________________________________________________________
+
+=head2 add_to_using_list
+
+  declartion:   add_to_using_list
+       input:   package_name   name of package to add to using list
+      return:
+    function:   add package_name to list of packages using this package
+
+$this->{using} = [];
+print @{ $this->{using}}
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub add_to_using_list {
+
+  my $this = shift;
+  my $package_name = shift;
+
+  push (@{ $this->{using} },$package_name);
+
+  return 0;
+}
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
+=head2 get_using_list
+
+  declartion:   get_using_list
+       input:   
+      return:   $using_list_ref 
+    function:   return the using list for this object
+
+$this->{using} = [];
+print @{ $this->{using}}
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub get_using_list{
+
+  my $this = shift;
+  my $using_list_ref = $this->{using};
+
+  return $using_list_ref;
+}
+#_____________________________________________________________________________
+
 #_____________________________________________________________________________
 
 1;    # end of Pacage.pm
