@@ -13,14 +13,9 @@ required commands
 
 *****************************************************************************
 
-=head1 CVS Information
+@author Stephen Conklin
+2013-10-08  14-01-21
 
------------------------------------------------------------------
-$Author: sconklin $
-$Date: 2005/11/15 18:07:40 $
-$Id: get_koch_index.pm,v 1.1.1.1 2005/11/15 18:07:40 sconklin Exp $
-$Revision: 1.1.1.1 $
------------------------------------------------------------------
 
 =head1 Public Class Methods
 
@@ -181,7 +176,7 @@ sub listHandler {
 
 
   }else {
-    print " all installed depends \n";
+    print " cmd line options are --> all installed depends \n";
   }
 
   return;
@@ -257,7 +252,7 @@ sub removeHandler {
     if ($size > 0) {
       my $lst = join(', ', @{$using_list_ref});
       print "$pakcage_name is being used by --> $lst\n";
-    }else {
+    }else {#this package can be removed
       $this->removePackage($pakcage_name);
     }
     my $stop;
@@ -295,8 +290,7 @@ sub resolveDependency {
     my $dep_ref = $pkg->get_dependencies();
     my @dep_array = @$dep_ref;
     foreach my $dep_name (@dep_array) {
-      print $dep_name;
-      #my $pkg = $this->{pkgList}{$dep_name};
+
       if (!$this->isPkgInstalled($dep_name)) { #go here if not installed
 	$this->resolveDependency($dep_name);
 	print "need to install dependency $dep_name\n";
@@ -304,17 +298,14 @@ sub resolveDependency {
 	  print "installing dependent package $dep_name\n";
 	  $this->installPkg($dep_name);
 	}
-
-	my $stop;
       }
     }
-
     my $stop = 'has dependneces';
   }else {
     my $stop = 'no dependneces';
   }
 
-  return 0; 
+  return 0;
 }
 #_____________________________________________________________________________
 
@@ -381,15 +372,13 @@ sub installPkg {
     my $stop;
     my $pkg = $this->{pkgList}{$pakcage_name};
     $pkg->set_install();
-    $this->pkgUsingList($pakcage_name);
-    my $name = $pkg->get_name();
-    print "successfully installed package -->  $name\n";
+    $this->pkgUsingList($pakcage_name);  #update the package using list for each dependency
+
   }else {
     my $pkg = Package->new($pakcage_name);
     $this->{pkgList}{$pakcage_name} = $pkg;
     $pkg->set_install();
-    my $name = $pkg->get_name();
-    print "successfully installed package -->  $name\n";
+    $this->pkgUsingList($pakcage_name);
   }
 
   return 0;
@@ -528,13 +517,9 @@ sub removePackage {
 
   foreach my  $dep (@deps_array ) {
     my $pkg = $this->{pkgList}{$dep};
-    my $using_list_ref = $pkg->get_using_list();
-
-    my @a = grep  {$_ ne $dep} @{ $using_list_ref };
-    my $stop;
+    $pkg->remove_from_using_list($pakcage_name);
   }
-
-# @array = grep {$_ ne $input_Color} @array;
+  $pkg->set_remove();
 
   return 0;
 }

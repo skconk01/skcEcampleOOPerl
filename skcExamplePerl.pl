@@ -21,52 +21,41 @@ use strict;
 
 use PkgMgr;
 
-use constant false => 0;
-use constant true  => 1;
-
-print "this is a test\n";
-
 my $pkgmg = PkgMgr->new();
 
 #read the commands
 while (1) {
 
-    print 'pkgMgr > ';
+  print 'pkgMgr > ';
 
-    my $line = <>;		#read stdin for a command
+  my $line = <>;		#read stdin for a command
 
-    if ($line eq "\n") {	#verify a command was entered
-	print "enter a command or END to exit \n";
-	next;
-    }
+  if ($line eq "\n") {		#verify a command was entered
+    print "enter a command or END to exit \n";
+    next;
+  }
 
 
-    print $line;
-    chop $line;
+  print $line;
+  chop $line;
 
-    my @cmd_line = split(/ /, $line);
+  my @cmd_line = split(/ /, $line);
 
-    my $cmd = $cmd_line[0];
+  my $cmd = $cmd_line[0];
 
-    if ($cmd eq 'DEPEND' ) {
-	print "call depend \n";
-	shift(@cmd_line);
-	my $depends = $cmd_line[1];
-	$pkgmg->dependHandler(@cmd_line);
-
-    } elsif ($cmd eq 'INSTALL') {
-	print 'call inststall' . "\n";
-	$pkgmg->installHandler($cmd_line[1]);
-
-    } elsif ($cmd eq 'REMOVE') {
-	print 'call remove'. "\n";
-	$pkgmg->removeHandler($cmd_line[1]);
-    } elsif ($cmd eq 'LIST') {
-	print 'call list'. "\n";
-	$pkgmg->listHandler($cmd_line[1]);
-    } elsif ($cmd eq 'END') {
-	last;
-    }
+  if ($cmd eq 'DEPEND' ) {
+    shift(@cmd_line);
+    my $depends = $cmd_line[1];
+    $pkgmg->dependHandler(@cmd_line);
+  } elsif ($cmd eq 'INSTALL') {
+    $pkgmg->installHandler($cmd_line[1]);
+  } elsif ($cmd eq 'REMOVE') {
+    $pkgmg->removeHandler($cmd_line[1]);
+  } elsif ($cmd eq 'LIST') {
+    $pkgmg->listHandler($cmd_line[1]);
+  } elsif ($cmd eq 'END') {
+    last;
+  }
 
 }
 

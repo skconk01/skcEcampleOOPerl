@@ -11,14 +11,8 @@ this is a container for meta data associated with each package
 
 *****************************************************************************
 
-=head1 CVS Information
-
------------------------------------------------------------------
-$Author: sconklin $
-$Date: 2005/11/15 18:07:40 $
-$Id: get_koch_index.pm,v 1.1.1.1 2005/11/15 18:07:40 sconklin Exp $
-$Revision: 1.1.1.1 $
------------------------------------------------------------------
+@author Stephen Conklin
+2013-10-08  14-02-25
 
 =head1 Public Class Methods
 
@@ -196,8 +190,38 @@ $this->{installed} = 'yes';
 sub set_install {
 
   my $this = shift;
+  my $name = $this->{name};
 
   $this->{installed} = 'yes';
+  print "successfully installed package -->  $name\n";
+
+  return 0;
+}
+#_____________________________________________________________________________
+
+#_____________________________________________________________________________
+
+=head2 set_remove
+
+  declartion:   set_remove
+       input:
+      return:
+    function:  set the intall flag to no
+
+
+$this->{installed} = 'no';
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub set_remove {
+
+  my $this = shift;
+  my $name = $this->{name};
+
+  $this->{installed} = 'no';
+  print "successfully removed package --> $name\n";
 
   return 0;
 }
@@ -289,6 +313,37 @@ sub get_using_list{
   my $using_list_ref = $this->{using};
 
   return $using_list_ref;
+}
+#_____________________________________________________________________________
+
+
+#_____________________________________________________________________________
+
+=head2 remove_from_using_list
+
+  declartion:   remove_from_using_list
+       input:   $item   item to be removed
+      return:   
+    function:   remove $item from the using list because the package 
+                is no longer being used by this package.
+
+$this->{using} = [];
+print @{ $this->{using}}
+my @a = grep  {$_ ne $dep} @{ $using_list_ref };
+
+=cut back to perl
+
+#_____________________________________________________________________________
+
+sub remove_from_using_list{
+
+  my $this = shift;
+  my $item = shift;
+
+  #remove $item from the using array list
+  @{ $this->{using}}  = grep  {$_ ne $item} @{ $this->{using}};
+
+  return 0;
 }
 #_____________________________________________________________________________
 
